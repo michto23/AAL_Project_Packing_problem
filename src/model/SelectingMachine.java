@@ -1,6 +1,6 @@
-package java.model;
+package model;
 
-import java.common.Constants;
+import common.Constants;
 
 import java.util.Collections;
 import java.util.List;

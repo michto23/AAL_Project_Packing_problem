@@ -1,4 +1,4 @@
-package java.common;
+package common;
 
 /**
  * Created by michto on 24.10.15.
