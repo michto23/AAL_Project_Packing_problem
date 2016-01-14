@@ -1,4 +1,4 @@
-package pl.tomaszewski.michal.common;
+package java.common;
 
 /**
  * Created by michto on 24.10.15.

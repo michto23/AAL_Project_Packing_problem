@@ -1,4 +1,4 @@
-package pl.tomaszewski.michal;
+package java;
 
 public class Main {
 

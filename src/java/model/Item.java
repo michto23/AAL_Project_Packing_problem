@@ -1,4 +1,4 @@
-package pl.tomaszewski.michal.model;
+package java.model;
 
 import java.util.concurrent.atomic.AtomicInteger;
 

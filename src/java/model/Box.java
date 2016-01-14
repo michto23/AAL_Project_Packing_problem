@@ -1,6 +1,6 @@
-package pl.tomaszewski.michal.model;
+package java.model;
 
-import pl.tomaszewski.michal.common.Constants;
+import java.common.Constants;
 
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;

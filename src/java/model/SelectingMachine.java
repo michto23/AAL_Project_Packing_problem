@@ -1,8 +1,7 @@
-package pl.tomaszewski.michal.model;
+package java.model;
 
-import pl.tomaszewski.michal.common.Constants;
+import java.common.Constants;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
