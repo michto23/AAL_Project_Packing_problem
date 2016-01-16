@@ -37,15 +37,15 @@ public class Item implements Comparable<Item>{
         return isInBox;
     }
 
-    public void setIsInBox(boolean isInBox) {
-        this.isInBox = isInBox;
-    }
+    public void setIsInBox(boolean isInBox) {this.isInBox = isInBox;}
 
     @Override
     public int compareTo(Item item) {
         double compareSize = ((Item) item).getItemSize();
         if (this.itemSize > compareSize)
             return 1;
+        else if ((this.itemSize < compareSize))
+            return -1;
         else return 0;
     }
 }
