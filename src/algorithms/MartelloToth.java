@@ -90,10 +90,11 @@ public class MartelloToth extends PackingAlgorithm {
     private void MTRP() {
         List<MTRPHelperStruct> toUseInOneCall = new ArrayList<>(toUse);
 
+        int k = 0;
         do{
             int j = toUse.get(0).orderNumber;
             double sizeJ = toUse.get(0).item.getItemSize();
-            int k = findLargestPossibleItem(j, sizeJ, true);
+            k = findLargestPossibleItem(j, sizeJ, true, toUseInOneCall);
             if(k == 0){ //dodaj tylko jeden item
                 Box box = new Box();
                 box.addItem(toUse.get(0).getItem());
@@ -102,7 +103,7 @@ public class MartelloToth extends PackingAlgorithm {
                 toUseInOneCall.remove(0);
             }
             else{
-                MTRPHelperStruct minMtrp = toUseInOneCall.get(toUseInOneCall.size() - findLargestPossibleItem(j, sizeJ, false));//pobierz jak najwiekszy spelniajacy wj + wminmtrp <= capacity
+                MTRPHelperStruct minMtrp = toUseInOneCall.get(toUseInOneCall.size() - findLargestPossibleItem(j, sizeJ, false, toUseInOneCall));//pobierz jak najwiekszy spelniajacy wj + wminmtrp <= capacity
                 if(k == 1 || (toUse.get(0).item.getItemSize() + minMtrp.item.getItemSize() == Constants.MAX_CAPACITY_OF_BOX)){
                     Box box = new Box();
                     box.addItem(toUse.get(0).getItem());
@@ -148,21 +149,21 @@ public class MartelloToth extends PackingAlgorithm {
                     toUseInOneCall.remove(0); //tylko wyrzucam z listy do uzycia w jednym obiegu, nie dolaczam do zadnego boxa
                 }
             }
-        }while(!toUseInOneCall.isEmpty()); //TODO do sprawdzenia
+        }while(!toUseInOneCall.isEmpty() && k <= 2); //TODO do sprawdzenia
     }
 
-    private int findLargestPossibleItem(int j, double sizeJ, boolean sumAllPrevious){
+    private int findLargestPossibleItem(int j, double sizeJ, boolean sumAllPrevious, List<MTRPHelperStruct> toUseInCall){
         int k = 0;
         double sum = 0;
         double smallSum = 0;
         while (true){
             if(sumAllPrevious){
-                smallSum += toUse.get(toUse.size()- 1- k).item.getItemSize();
+                smallSum += toUseInCall.get(toUseInCall.size()- 1- k).item.getItemSize();
                 sum = sizeJ + smallSum;
             }
             else
-                sum = sizeJ + toUse.get(toUse.size()- 1- k).item.getItemSize();
-            if(sum > Constants.MAX_CAPACITY_OF_BOX || k >= toUse.size() - 1){
+                sum = sizeJ + toUseInCall.get(toUseInCall.size()- 1- k).item.getItemSize();
+            if(sum > Constants.MAX_CAPACITY_OF_BOX || k >= toUseInCall.size() - 1){
                 return k;
             }
             ++k;
@@ -203,5 +204,9 @@ public class MartelloToth extends PackingAlgorithm {
                 return mtrp;
         }
         return null;
+    }
+
+    private void updateOrder(){
+
     }
 }
