@@ -29,7 +29,10 @@ public class BruteForce extends PackingAlgorithm {
     @Override
     public List<Box> solvePackingProblem() {
         System.out.println("BruteForce");
+        long startTime = System.nanoTime();
         bruteforce(items, 0);
+        long endTime = System.nanoTime();
+        executionTime = endTime - startTime;
         return boxes;
     }
 

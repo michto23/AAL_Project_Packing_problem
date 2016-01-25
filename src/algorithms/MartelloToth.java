@@ -75,6 +75,7 @@ public class MartelloToth extends PackingAlgorithm {
     @Override
     public List<Box> solvePackingProblem() {
         System.out.println("MartelloToth");
+        long startTime = System.nanoTime();
         while(toUse.size() > 3){
             MTRP();
             if(!toUse.isEmpty()){ //dodaj ostatni (najmniejszy element)
@@ -95,6 +96,8 @@ public class MartelloToth extends PackingAlgorithm {
             }
         }
         deleted.clear();
+        long endTime = System.nanoTime();
+        executionTime = endTime - startTime;
         return boxes;
     }
 
@@ -190,7 +193,7 @@ public class MartelloToth extends PackingAlgorithm {
         BigDecimal smallSum = BigDecimal.valueOf(0);
         while (true){
             if(sumAllPrevious){
-                smallSum = smallSum.add(toUseInCall.get(toUseInCall.size()- 1- k).item.getItemSize());
+                smallSum = smallSum.add(toUseInCall.get(toUseInCall.size() - 1 - k).item.getItemSize());
                 sum = sizeJ.add(smallSum);
             }
             else

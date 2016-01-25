@@ -12,6 +12,7 @@ import java.util.List;
 public abstract class PackingAlgorithm {
     protected List<Item> items;
     protected List<Box> boxes;
+    protected long executionTime = 0;
 
     public PackingAlgorithm(List<Item> items) {
         this.items = new ArrayList<>(items);
@@ -32,6 +33,18 @@ public abstract class PackingAlgorithm {
 
     public void setBoxes(List<Box> boxes) {
         this.boxes = boxes;
+    }
+
+    public long getExecutionTime() {
+        return executionTime;
+    }
+
+    public long getExecutionTimeInMiliseconds() {
+        return executionTime/1000000;
+    }
+
+    public void setExecutionTime(long executionTime) {
+        this.executionTime = executionTime;
     }
 
     public abstract List<Box> solvePackingProblem();

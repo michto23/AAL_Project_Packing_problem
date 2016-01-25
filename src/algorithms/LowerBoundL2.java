@@ -45,9 +45,7 @@ public class LowerBoundL2 {
         List<Item> j1 = findJ1(alpha);
         List<Item> j2 = findJ2(alpha);
         List<Item> j3 = findJ3(alpha);
-        System.out.println("alpha to " + alpha);
         int lAlphaRoundUp = j1.size() + j2.size() + Math.max(0, ((makeSum(j3).subtract((BigDecimal.valueOf(j2.size()).multiply(Constants.MAX_CAPACITY_OF_BOX).subtract(makeSum(j2)))) ).divide(Constants.MAX_CAPACITY_OF_BOX)).setScale(0, RoundingMode.CEILING).intValue());
-        System.out.println("round to " + lAlphaRoundUp);
         return lAlphaRoundUp;
     }
 

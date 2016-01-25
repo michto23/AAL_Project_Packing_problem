@@ -21,10 +21,13 @@ public class FirstFitAscending extends PackingAlgorithm {
     @Override
     public List<Box> solvePackingProblem() {
         System.out.println("FirstFitAscending");
+        long startTime = System.nanoTime();
         while(!items.isEmpty()){
             Box max = pickItemsForBox(this.items);
             boxes.add(max);
         }
+        long endTime = System.nanoTime();
+        executionTime = endTime - startTime;
         return boxes;
     }
 
