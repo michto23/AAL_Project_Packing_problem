@@ -2,39 +2,35 @@ package model;
 
 import common.Constants;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by michto on 24.10.15.
  */
 public class Box {
-    private static final double MAX_CAPACITY = Constants.MAX_CAPACITY_OF_BOX;
+    private static final BigDecimal MAX_CAPACITY = Constants.MAX_CAPACITY_OF_BOX;
     private static AtomicInteger uniqueId = new AtomicInteger();
     private long id;
-    private double usedCapacity;
-    private double freeCapacity;
+    private BigDecimal usedCapacity = BigDecimal.valueOf(0);
+    private BigDecimal freeCapacity = Constants.MAX_CAPACITY_OF_BOX;
     private boolean isActive;
     private List<Item> itemsInBox = new ArrayList<>();
 
     public Box() {
         this.isActive = true;
         this.id = uniqueId.getAndIncrement();
-        this.usedCapacity = 0;
-        this.freeCapacity = Constants.MAX_CAPACITY_OF_BOX;
     }
 
     public Box(List<Item> itemsInBox) {
         this.isActive = true;
         this.id = uniqueId.getAndIncrement();
         this.itemsInBox = itemsInBox;
-        this.usedCapacity = 0;
-        this.freeCapacity = Constants.MAX_CAPACITY_OF_BOX;
         for(Item item : itemsInBox){
-            this.usedCapacity += item.getItemSize();
-            this.freeCapacity -= item.getItemSize();
+            this.usedCapacity = this.usedCapacity.add(item.getItemSize());
+            this.freeCapacity = this.freeCapacity.subtract(item.getItemSize());
         }
     }
 
@@ -47,7 +43,7 @@ public class Box {
     }
 
     //GETTERS SETTERS
-    public static double getMaxCapacity() {
+    public static BigDecimal getMaxCapacity() {
         return MAX_CAPACITY;
     }
 
@@ -67,19 +63,19 @@ public class Box {
         this.id = id;
     }
 
-    public double getUsedCapacity() {
+    public BigDecimal getUsedCapacity() {
         return usedCapacity;
     }
 
-    public void setUsedCapacity(double usedCapacity) {
+    public void setUsedCapacity(BigDecimal usedCapacity) {
         this.usedCapacity = usedCapacity;
     }
 
-    public double getFreeCapacity() {
+    public BigDecimal getFreeCapacity() {
         return freeCapacity;
     }
 
-    public void setFreeCapacity(double freeCapacity) {
+    public void setFreeCapacity(BigDecimal freeCapacity) {
         this.freeCapacity = freeCapacity;
     }
 
@@ -93,8 +89,8 @@ public class Box {
 
     //REGULAR METHODS
     public long addItem(Item item){
-        this.usedCapacity += item.getItemSize();
-        this.freeCapacity -= item.getItemSize();
+        this.usedCapacity = this.usedCapacity.add(item.getItemSize());
+        this.freeCapacity = this.freeCapacity.subtract(item.getItemSize());
         this.itemsInBox.add(item);
         return this.itemsInBox.size();
     }
@@ -110,8 +106,8 @@ public class Box {
 
     public void remove(Item item) {
         itemsInBox.remove(item);
-        this.usedCapacity -= item.getItemSize();
-        this.freeCapacity += item.getItemSize();
+        this.usedCapacity = this.usedCapacity.subtract(item.getItemSize());
+        this.freeCapacity = this.freeCapacity.add(item.getItemSize());
     }
 
 

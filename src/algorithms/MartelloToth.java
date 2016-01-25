@@ -4,6 +4,7 @@ import common.Constants;
 import model.Box;
 import model.Item;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -49,12 +50,8 @@ public class MartelloToth extends PackingAlgorithm {
 
         @Override
         public int compareTo(MTRPHelperStruct mtrp) {
-            double compareSize = ((MTRPHelperStruct) mtrp).getItem().getItemSize();
-            if (this.item.getItemSize() > compareSize)
-                return 1;
-            else if ((this.item.getItemSize() < compareSize))
-                return -1;
-            else return 0;
+            BigDecimal compareSize = ((MTRPHelperStruct) mtrp).getItem().getItemSize();
+            return this.item.getItemSize().compareTo(compareSize);
         }
     }
 
@@ -103,7 +100,7 @@ public class MartelloToth extends PackingAlgorithm {
 
     private boolean addToExistingBox(MTRPHelperStruct mtrpHelperStruct){
         for(Box box : boxes){
-            if(mtrpHelperStruct.item.getItemSize() <= box.getFreeCapacity()){
+            if(mtrpHelperStruct.item.getItemSize().compareTo(box.getFreeCapacity()) == -1 || mtrpHelperStruct.item.getItemSize().compareTo(box.getFreeCapacity()) == 0){
                 box.addItem(mtrpHelperStruct.item);
                 return true;
             }
@@ -117,7 +114,7 @@ public class MartelloToth extends PackingAlgorithm {
         List<MTRPHelperStruct> notPicked = new ArrayList<>();
         do{
             int j = toUse.get(0).orderNumber;
-            double sizeJ = toUse.get(0).item.getItemSize();
+            BigDecimal sizeJ = toUse.get(0).item.getItemSize();
             k = findLargestPossibleItem(j, sizeJ, true, toUse);
             if(k == 0){ //dodaj tylko jeden item
                 Box box = new Box();
@@ -128,7 +125,7 @@ public class MartelloToth extends PackingAlgorithm {
             }
             else{
                 MTRPHelperStruct minMtrp = toUse.get(toUse.size() - findLargestPossibleItem(j, sizeJ, false, toUse));//pobierz jak najwiekszy spelniajacy wj + wminmtrp <= capacity
-                if(k == 1 || (toUse.get(0).item.getItemSize() + minMtrp.item.getItemSize() == Constants.MAX_CAPACITY_OF_BOX)){
+                if(k == 1 || (toUse.get(0).item.getItemSize().add(minMtrp.item.getItemSize()).equals(Constants.MAX_CAPACITY_OF_BOX))){
                     Box box = new Box();
                     box.addItem(toUse.get(0).getItem());
                     box.addItem(minMtrp.getItem());
@@ -143,8 +140,8 @@ public class MartelloToth extends PackingAlgorithm {
                     MTRPHelperStruct mtrB = new MTRPHelperStruct(null);
                     MTRPHelperStruct mtrPreviousB = new MTRPHelperStruct(null);
                     MTRPHelperStruct mtr2XPreviousB = new MTRPHelperStruct(null);
-                    findTwoBestItemsToAdd(mtrA, mtrB, mtrPreviousB, mtr2XPreviousB, toUse, Constants.MAX_CAPACITY_OF_BOX - sizeJ);
-                    if(minMtrp.item.getItemSize() >= mtrA.item.getItemSize() + mtrB.item.getItemSize()){
+                    findTwoBestItemsToAdd(mtrA, mtrB, mtrPreviousB, mtr2XPreviousB, toUse, Constants.MAX_CAPACITY_OF_BOX.subtract((sizeJ)));
+                    if(minMtrp.item.getItemSize().compareTo(mtrA.item.getItemSize().add(mtrB.item.getItemSize())) == 1 || minMtrp.item.getItemSize().compareTo(mtrA.item.getItemSize().add(mtrB.item.getItemSize())) == 0){
                         Box box = new Box();
                         box.addItem(toUse.get(0).getItem());
                         box.addItem(minMtrp.getItem());
@@ -153,7 +150,7 @@ public class MartelloToth extends PackingAlgorithm {
                         toUse.remove(minMtrp);
                         updateOrder(toUse);
                     }
-                    else if(minMtrp.getItem().getItemSize() == mtrA.getItem().getItemSize() && ((mtrB.orderNumber - mtrA.orderNumber <= 2) || (sizeJ + mtrPreviousB.item.getItemSize() + mtr2XPreviousB.item.getItemSize() > Constants.MAX_CAPACITY_OF_BOX))){
+                    else if(minMtrp.getItem().getItemSize().equals(mtrA.getItem().getItemSize()) && ((mtrB.orderNumber - mtrA.orderNumber <= 2) || (sizeJ.add(mtrPreviousB.item.getItemSize() ).add(mtr2XPreviousB.item.getItemSize()).compareTo(Constants.MAX_CAPACITY_OF_BOX) == 1 ))){
                         Box box = new Box();
                         box.addItem(toUse.get(0).getItem());
                         box.addItem(mtrA.getItem());
@@ -187,32 +184,30 @@ public class MartelloToth extends PackingAlgorithm {
         notPicked.clear();
     }
 
-    private int findLargestPossibleItem(int j, double sizeJ, boolean sumAllPrevious, List<MTRPHelperStruct> toUseInCall){
+    private int findLargestPossibleItem(int j, BigDecimal sizeJ, boolean sumAllPrevious, List<MTRPHelperStruct> toUseInCall){
         int k = 0;
-        double sum = 0;
-        double smallSum = 0;
+        BigDecimal sum = BigDecimal.valueOf(0);
+        BigDecimal smallSum = BigDecimal.valueOf(0);
         while (true){
             if(sumAllPrevious){
-                smallSum += toUseInCall.get(toUseInCall.size()- 1- k).item.getItemSize();
-                sum = sizeJ + smallSum;
+                smallSum = smallSum.add(toUseInCall.get(toUseInCall.size()- 1- k).item.getItemSize());
+                sum = sizeJ.add(smallSum);
             }
             else
-                sum = sizeJ + toUseInCall.get(toUseInCall.size()- 1- k).item.getItemSize();
-            if(sum > Constants.MAX_CAPACITY_OF_BOX || k >= toUseInCall.size() - 1){
+                sum = sizeJ.add(toUseInCall.get(toUseInCall.size()- 1- k).item.getItemSize());
+            if((sum.compareTo(Constants.MAX_CAPACITY_OF_BOX ) == 1) || k >= toUseInCall.size() - 1){
                 return k;
             }
             ++k;
         }
     }
 
-    private void findTwoBestItemsToAdd(MTRPHelperStruct mtrA, MTRPHelperStruct mtrB, MTRPHelperStruct mtrPreviousB, MTRPHelperStruct mtr2XPreviousB, List<MTRPHelperStruct> toUseInCall, double freeCapacity){
-        double max = 0;
-        MTRPHelperStruct temp;
-        MTRPHelperStruct temp2;
+    private void findTwoBestItemsToAdd(MTRPHelperStruct mtrA, MTRPHelperStruct mtrB, MTRPHelperStruct mtrPreviousB, MTRPHelperStruct mtr2XPreviousB, List<MTRPHelperStruct> toUseInCall, BigDecimal freeCapacity){
+        BigDecimal max = BigDecimal.valueOf(0);
         for(int i = toUseInCall.size() - 1; i > 1; --i){
             for(int j = i - 1; j > 0; --j){
-                double sum = toUseInCall.get(i).item.getItemSize() + toUseInCall.get(j).item.getItemSize();
-                if(sum <= freeCapacity && sum > max){
+                BigDecimal sum = toUseInCall.get(i).item.getItemSize().add(toUseInCall.get(j).item.getItemSize());
+                if((sum.compareTo(freeCapacity) == -1 || sum.compareTo(freeCapacity) == 0) && (sum.compareTo(max) == 1)){
                     max = sum;
                     mtrA.setItem(toUseInCall.get(j).item);
                     mtrA.setOrderNumber(toUseInCall.get(j).orderNumber);

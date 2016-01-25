@@ -20,26 +20,26 @@ public class Main {
     }
 
     private static void addItem(double value, List<Item>items){
-        Item item = new Item(value);
+        Item item = new Item(BigDecimal.valueOf(value));
         items.add(item);
     }
 
     public static void main(String[] args) {
         ArrayList<Item> items = new ArrayList<Item>();
-//        addItem(0.99, items);
-//        addItem(0.94, items);
-//        addItem(0.79, items);
-//        addItem(0.64, items);
-//        addItem(0.50, items);
-//        addItem(0.46, items);
-//        addItem(0.43, items);
-//        addItem(0.37, items);
-//        addItem(0.32, items);
-//        addItem(0.19, items);
-//        addItem(0.18, items);
-//        addItem(0.07, items);
-//        addItem(0.06, items);
-//        addItem(0.03, items);
+        addItem(0.99, items);
+        addItem(0.94, items);
+        addItem(0.79, items);
+        addItem(0.64, items);
+        addItem(0.50, items);
+        addItem(0.46, items);
+        addItem(0.43, items);
+        addItem(0.37, items);
+        addItem(0.32, items);
+        addItem(0.19, items);
+        addItem(0.18, items);
+        addItem(0.07, items);
+        addItem(0.06, items);
+        addItem(0.03, items);
 //        addItem(0.18, items);
 //        addItem(0.07, items);
 //        addItem(0.06, items);
@@ -299,7 +299,7 @@ public class Main {
 
 
 
-        BruteForce bruteForce = new BruteForce(items);
+//        BruteForce bruteForce = new BruteForce(items);
         FirstFitAscending firstFitAscending = new FirstFitAscending(items);
         LastAndFirstFitAscending lastAndFirstFitAscending = new LastAndFirstFitAscending(items);
         MartelloToth martelloToth = new MartelloToth(items);
@@ -309,22 +309,21 @@ public class Main {
         Main.printBoxes(firstFitAscending.solvePackingProblem());
         Main.printBoxes(lastAndFirstFitAscending.solvePackingProblem());
         Main.printBoxes(martelloToth.solvePackingProblem());
-
-
+//
+//
         System.out.println("l2 to " + lowerBoundL2.solveLowerBoundL2());
 
-        double a = 0;
-        double b = 0.1;
-        double c = 0.01;
-        BigDecimal biga = new BigDecimal(String.valueOf(0.91111));
-        BigDecimal bigb = new BigDecimal("0.0111111");
-        BigDecimal bigc = biga.subtract(bigb);
-
-
-        a = b - c;
-        if(1>0){
-            System.out.println(bigc);
-        }
+//        double a = 0;
+//        double b = 0.1;
+//        double c = 0.01;
+//        BigDecimal biga = new BigDecimal(String.valueOf(0.91111));
+//        BigDecimal bigb = new BigDecimal("0.0111111");
+//        bigb = new BigDecimal("0.123");
+//        bigb = BigDecimal.valueOf(0.123);
+//        BigDecimal bigc = biga.subtract(bigb);
+//
+//
+//        System.out.println(bigc);
 
     }
 }

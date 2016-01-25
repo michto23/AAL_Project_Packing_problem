@@ -1,5 +1,6 @@
 package model;
 
+import java.math.BigDecimal;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -8,10 +9,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Item implements Comparable<Item>{
     private static AtomicInteger uniqueId = new AtomicInteger();
     private long id;
-    private double itemSize;
+    private BigDecimal itemSize;
     private boolean isInBox;
 
-    public Item(double itemSize) {
+    public Item(BigDecimal itemSize) {
         this.id = uniqueId.getAndIncrement();
         this.itemSize = itemSize;
         this.isInBox = false;
@@ -25,10 +26,10 @@ public class Item implements Comparable<Item>{
         this.id = id;
     }
 
-    public double getItemSize() {return itemSize;
+    public BigDecimal getItemSize() {return itemSize;
     }
 
-    public void setItemSize(double itemSize) {
+    public void setItemSize(BigDecimal itemSize) {
         this.itemSize = itemSize;
     }
 
@@ -40,11 +41,7 @@ public class Item implements Comparable<Item>{
 
     @Override
     public int compareTo(Item item) {
-        double compareSize = ((Item) item).getItemSize();
-        if (this.itemSize > compareSize)
-            return 1;
-        else if ((this.itemSize < compareSize))
-            return -1;
-        else return 0;
+        BigDecimal compareSize = ((Item) item).getItemSize();
+        return this.itemSize.compareTo(compareSize);
     }
 }

@@ -45,7 +45,7 @@ public class BruteForce extends PackingAlgorithm {
         // iterate over bins
         Item currentItem = in.get(currentPosition);
         for (Box bin : boxes) {
-            if (currentItem.getItemSize() <= bin.getFreeCapacity()) {
+            if (currentItem.getItemSize().compareTo(bin.getFreeCapacity()) == -1 || currentItem.getItemSize().compareTo(bin.getFreeCapacity()) == 0) {
                 bin.addItem(currentItem);
                 bruteforce(in, currentPosition + 1);
                 bin.remove(currentItem);

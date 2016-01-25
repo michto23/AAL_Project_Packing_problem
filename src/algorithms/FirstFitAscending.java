@@ -33,7 +33,7 @@ public class FirstFitAscending extends PackingAlgorithm {
         int index = 0;
         Box box = new Box();
         while(!isTooMuch && !items.isEmpty()){
-            if(items.get(index).getItemSize() <= box.getFreeCapacity()){
+            if(items.get(index).getItemSize().compareTo(box.getFreeCapacity()) == -1 || items.get(index).getItemSize().compareTo(box.getFreeCapacity()) == 0){
                 box.addItem(items.get(index));
                 items.remove(index);
             }

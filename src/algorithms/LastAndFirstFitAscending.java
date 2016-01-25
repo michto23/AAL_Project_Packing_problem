@@ -33,7 +33,7 @@ public class LastAndFirstFitAscending extends PackingAlgorithm{
         items.remove(items.get(items.size() - 1));
 
         while(!isTooMuch && !items.isEmpty()){
-            if(items.get(index).getItemSize() <= box.getFreeCapacity()){
+            if(items.get(index).getItemSize().compareTo(box.getFreeCapacity()) == -1 || items.get(index).getItemSize().compareTo(box.getFreeCapacity()) == 0){
                 box.addItem(items.get(index));
                 items.remove(index);
             }
