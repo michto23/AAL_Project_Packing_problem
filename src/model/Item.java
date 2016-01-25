@@ -25,8 +25,7 @@ public class Item implements Comparable<Item>{
         this.id = id;
     }
 
-    public double getItemSize() {
-        return itemSize;
+    public double getItemSize() {return itemSize;
     }
 
     public void setItemSize(double itemSize) {

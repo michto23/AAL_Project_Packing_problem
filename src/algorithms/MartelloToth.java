@@ -6,6 +6,7 @@ import model.Item;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -13,7 +14,7 @@ import java.util.List;
  */
 public class MartelloToth extends PackingAlgorithm {
 
-    private class MTRPHelperStruct {
+    private class MTRPHelperStruct implements Comparable<MTRPHelperStruct>{
         private Item item;
         private int boxIndex = -1; //no box assigned
         private int orderNumber;
@@ -45,6 +46,16 @@ public class MartelloToth extends PackingAlgorithm {
         public void setOrderNumber(int orderNumber) {
             this.orderNumber = orderNumber;
         }
+
+        @Override
+        public int compareTo(MTRPHelperStruct mtrp) {
+            double compareSize = ((MTRPHelperStruct) mtrp).getItem().getItemSize();
+            if (this.item.getItemSize() > compareSize)
+                return 1;
+            else if ((this.item.getItemSize() < compareSize))
+                return -1;
+            else return 0;
+        }
     }
 
     private List<MTRPHelperStruct> resultMTRPList = new ArrayList<>();
@@ -67,43 +78,56 @@ public class MartelloToth extends PackingAlgorithm {
     @Override
     public List<Box> solvePackingProblem() {
         System.out.println("MartelloToth");
-        while(!toUse.isEmpty()){
+        while(toUse.size() > 3){
             MTRP();
             if(!toUse.isEmpty()){ //dodaj ostatni (najmniejszy element)
                 deleted.add(toUse.get(toUse.size() - 1));
                 toUse.remove(toUse.get(toUse.size() - 1));
             }
         }
+        for(MTRPHelperStruct mtrpHelperStruct : toUse){
+            deleted.add(mtrpHelperStruct);
+        }
+        Collections.sort(deleted);
+        Collections.reverse(deleted);
         for(MTRPHelperStruct mtrpHelperStruct : deleted){
-            for(Box box : boxes){
-                if(mtrpHelperStruct.item.getItemSize() <= box.getFreeCapacity()){
-                    box.addItem(mtrpHelperStruct.item);
-//                    deleted.remove(mtrpHelperStruct);
-                    break;
-                }
+            if(!addToExistingBox(mtrpHelperStruct)){
+                Box box = new Box();
+                box.addItem(mtrpHelperStruct.item);
+                boxes.add(box);
             }
         }
+        deleted.clear();
         return boxes;
+    }
+
+    private boolean addToExistingBox(MTRPHelperStruct mtrpHelperStruct){
+        for(Box box : boxes){
+            if(mtrpHelperStruct.item.getItemSize() <= box.getFreeCapacity()){
+                box.addItem(mtrpHelperStruct.item);
+                return true;
+            }
+        }
+        return false;
     }
 
 
     private void MTRP() {
-        List<MTRPHelperStruct> toUseInOneCall = new ArrayList<>(toUse);
-
         int k = 0;
+        List<MTRPHelperStruct> notPicked = new ArrayList<>();
         do{
             int j = toUse.get(0).orderNumber;
             double sizeJ = toUse.get(0).item.getItemSize();
-            k = findLargestPossibleItem(j, sizeJ, true, toUseInOneCall);
+            k = findLargestPossibleItem(j, sizeJ, true, toUse);
             if(k == 0){ //dodaj tylko jeden item
                 Box box = new Box();
                 box.addItem(toUse.get(0).getItem());
                 boxes.add(box);
                 toUse.remove(0);
-                toUseInOneCall.remove(0);
+                updateOrder(toUse);
             }
             else{
-                MTRPHelperStruct minMtrp = toUseInOneCall.get(toUseInOneCall.size() - findLargestPossibleItem(j, sizeJ, false, toUseInOneCall));//pobierz jak najwiekszy spelniajacy wj + wminmtrp <= capacity
+                MTRPHelperStruct minMtrp = toUse.get(toUse.size() - findLargestPossibleItem(j, sizeJ, false, toUse));//pobierz jak najwiekszy spelniajacy wj + wminmtrp <= capacity
                 if(k == 1 || (toUse.get(0).item.getItemSize() + minMtrp.item.getItemSize() == Constants.MAX_CAPACITY_OF_BOX)){
                     Box box = new Box();
                     box.addItem(toUse.get(0).getItem());
@@ -111,8 +135,7 @@ public class MartelloToth extends PackingAlgorithm {
                     boxes.add(box);
                     toUse.remove(0);
                     toUse.remove(minMtrp);
-                    toUseInOneCall.remove(0);
-                    toUseInOneCall.remove(minMtrp);
+                    updateOrder(toUse);
                 }
                 else if(k == 2){
                     //znajdz 2 najwieksze takie ze wj + w2 + w3 <= capacity
@@ -120,7 +143,7 @@ public class MartelloToth extends PackingAlgorithm {
                     MTRPHelperStruct mtrB = new MTRPHelperStruct(null);
                     MTRPHelperStruct mtrPreviousB = new MTRPHelperStruct(null);
                     MTRPHelperStruct mtr2XPreviousB = new MTRPHelperStruct(null);
-                    findTwoBestItemsToAdd(mtrA, mtrB, mtrPreviousB, mtr2XPreviousB, toUseInOneCall, Constants.MAX_CAPACITY_OF_BOX - sizeJ);
+                    findTwoBestItemsToAdd(mtrA, mtrB, mtrPreviousB, mtr2XPreviousB, toUse, Constants.MAX_CAPACITY_OF_BOX - sizeJ);
                     if(minMtrp.item.getItemSize() >= mtrA.item.getItemSize() + mtrB.item.getItemSize()){
                         Box box = new Box();
                         box.addItem(toUse.get(0).getItem());
@@ -128,28 +151,40 @@ public class MartelloToth extends PackingAlgorithm {
                         boxes.add(box);
                         toUse.remove(0);
                         toUse.remove(minMtrp);
-                        toUseInOneCall.remove(0);
-                        toUseInOneCall.remove(minMtrp);
+                        updateOrder(toUse);
                     }
-                    else if(minMtrp == mtrA && ((mtrB.orderNumber - mtrA.orderNumber <= 2) || (sizeJ + mtrPreviousB.item.getItemSize() + mtr2XPreviousB.item.getItemSize() > Constants.MAX_CAPACITY_OF_BOX))){
+                    else if(minMtrp.getItem().getItemSize() == mtrA.getItem().getItemSize() && ((mtrB.orderNumber - mtrA.orderNumber <= 2) || (sizeJ + mtrPreviousB.item.getItemSize() + mtr2XPreviousB.item.getItemSize() > Constants.MAX_CAPACITY_OF_BOX))){
                         Box box = new Box();
                         box.addItem(toUse.get(0).getItem());
                         box.addItem(mtrA.getItem());
                         box.addItem(mtrB.getItem());
                         boxes.add(box);
+                        toUse.remove(mtrB.getOrderNumber());
+                        toUse.remove(mtrA.getOrderNumber());
                         toUse.remove(0);
-                        toUse.remove(mtrA);
-                        toUse.remove(mtrB);
-                        toUseInOneCall.remove(0);
-                        toUseInOneCall.remove(mtrA);
-                        toUseInOneCall.remove(mtrB);
+
+                        updateOrder(toUse);
+                    }
+                    else{
+                        //usun tymczasowo, bo nie mozna dodac do zadnego boxa, nie spelnia wymagan
+                        notPicked.add(toUse.get(0));
+                        toUse.remove(0);
+                        updateOrder(toUse);
                     }
                 }
-                else{
-                    toUseInOneCall.remove(0); //tylko wyrzucam z listy do uzycia w jednym obiegu, nie dolaczam do zadnego boxa
-                }
             }
-        }while(!toUseInOneCall.isEmpty() && k <= 2); //TODO do sprawdzenia
+        }while(toUse.size() > 3 && k <= 2);
+        mergeToUseNotPicked(notPicked);
+    }
+
+    private void mergeToUseNotPicked(List<MTRPHelperStruct> notPicked){
+        for(MTRPHelperStruct mtrpHelperStruct : notPicked){
+            toUse.add(mtrpHelperStruct);
+        }
+        Collections.sort(toUse);
+        Collections.reverse(toUse);
+        updateOrder(toUse);
+        notPicked.clear();
     }
 
     private int findLargestPossibleItem(int j, double sizeJ, boolean sumAllPrevious, List<MTRPHelperStruct> toUseInCall){
@@ -179,19 +214,19 @@ public class MartelloToth extends PackingAlgorithm {
                 double sum = toUseInCall.get(i).item.getItemSize() + toUseInCall.get(j).item.getItemSize();
                 if(sum <= freeCapacity && sum > max){
                     max = sum;
-                    mtrA.setItem(toUseInCall.get(i).item);
-                    mtrA.setOrderNumber(toUseInCall.get(i).orderNumber);
-                    mtrA.setBoxIndex(toUseInCall.get(i).boxIndex);
-                    mtrB.setItem(toUseInCall.get(j).item);
-                    mtrB.setOrderNumber(toUseInCall.get(j).orderNumber);
-                    mtrB.setBoxIndex(toUseInCall.get(j).boxIndex);
+                    mtrA.setItem(toUseInCall.get(j).item);
+                    mtrA.setOrderNumber(toUseInCall.get(j).orderNumber);
+                    mtrA.setBoxIndex(toUseInCall.get(j).boxIndex);
+                    mtrB.setItem(toUseInCall.get(i).item);
+                    mtrB.setOrderNumber(toUseInCall.get(i).orderNumber);
+                    mtrB.setBoxIndex(toUseInCall.get(i).boxIndex);
                     if(mtrB.orderNumber - mtrA.orderNumber > 2){
-                        mtrPreviousB.setItem(toUseInCall.get(j - 1).item);
-                        mtrPreviousB.setOrderNumber(toUseInCall.get(j - 1).orderNumber);
-                        mtrPreviousB.setBoxIndex(toUseInCall.get(j - 1).boxIndex);
-                        mtr2XPreviousB.setItem(toUseInCall.get(j - 2).item);
-                        mtr2XPreviousB.setOrderNumber(toUseInCall.get(j - 2).orderNumber);
-                        mtr2XPreviousB.setBoxIndex(toUseInCall.get(j - 2).boxIndex);
+                        mtrPreviousB.setItem(toUseInCall.get(i - 1).item);
+                        mtrPreviousB.setOrderNumber(toUseInCall.get(i - 1).orderNumber);
+                        mtrPreviousB.setBoxIndex(toUseInCall.get(i - 1).boxIndex);
+                        mtr2XPreviousB.setItem(toUseInCall.get(i - 2).item);
+                        mtr2XPreviousB.setOrderNumber(toUseInCall.get(i - 2).orderNumber);
+                        mtr2XPreviousB.setBoxIndex(toUseInCall.get(i - 2).boxIndex);
                     }
                 }
             }
@@ -206,7 +241,11 @@ public class MartelloToth extends PackingAlgorithm {
         return null;
     }
 
-    private void updateOrder(){
-
+    private void updateOrder(List<MTRPHelperStruct> list ){
+        int i = 0;
+        for(MTRPHelperStruct mtrpHelperStruct1 : list){
+            mtrpHelperStruct1.setOrderNumber(i);
+            ++i;
+        }
     }
 }

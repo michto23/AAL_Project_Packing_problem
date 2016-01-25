@@ -23,7 +23,6 @@ public class FirstFitAscending extends PackingAlgorithm {
         System.out.println("FirstFitAscending");
         while(!items.isEmpty()){
             Box max = pickItemsForBox(this.items);
-            System.out.println("box ma " + max.getUsedCapacity());
             boxes.add(max);
         }
         return boxes;

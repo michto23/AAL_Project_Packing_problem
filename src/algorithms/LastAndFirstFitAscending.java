@@ -20,7 +20,6 @@ public class LastAndFirstFitAscending extends PackingAlgorithm{
         System.out.println("LastAndFirstFitAscending");
         while(!items.isEmpty()){
             Box max = pickItemsForBox(this.items);
-            System.out.println("box ma " + max.getUsedCapacity());
             boxes.add(max);
         }
         return boxes;

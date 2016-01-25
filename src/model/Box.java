@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Created by michto on 24.10.15.
  */
 public class Box {
-    private static final int MAX_CAPACITY = Constants.MAX_CAPACITY_OF_BOX;
+    private static final double MAX_CAPACITY = Constants.MAX_CAPACITY_OF_BOX;
     private static AtomicInteger uniqueId = new AtomicInteger();
     private long id;
     private double usedCapacity;
@@ -38,8 +38,16 @@ public class Box {
         }
     }
 
+    public Box(Box b) {
+        this.id = b.id;
+        this.usedCapacity = b.usedCapacity;
+        this.freeCapacity = b.freeCapacity;
+        this.isActive = b.isActive;
+        this.itemsInBox = b.itemsInBox;
+    }
+
     //GETTERS SETTERS
-    public static int getMaxCapacity() {
+    public static double getMaxCapacity() {
         return MAX_CAPACITY;
     }
 
@@ -90,6 +98,21 @@ public class Box {
         this.freeCapacity -= item.getItemSize();
         this.itemsInBox.add(item);
         return this.itemsInBox.size();
+    }
+
+    public Box deepCopy() {
+        Box copy = new Box();
+        copy.itemsInBox = new ArrayList<Item>(itemsInBox); // Integers are not copied by reference
+        copy.freeCapacity = freeCapacity;
+        copy.usedCapacity = usedCapacity;
+        copy.id = id;
+        return copy;
+    }
+
+    public void remove(Item item) {
+        itemsInBox.remove(item);
+        this.usedCapacity -= item.getItemSize();
+        this.freeCapacity += item.getItemSize();
     }
 
 
