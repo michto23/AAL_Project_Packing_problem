@@ -93,7 +93,6 @@ public class Box {
 
     //REGULAR METHODS
     public long addItem(Item item){
-        //if przekroczy objetosc to exception
         this.usedCapacity += item.getItemSize();
         this.freeCapacity -= item.getItemSize();
         this.itemsInBox.add(item);
@@ -102,7 +101,7 @@ public class Box {
 
     public Box deepCopy() {
         Box copy = new Box();
-        copy.itemsInBox = new ArrayList<Item>(itemsInBox); // Integers are not copied by reference
+        copy.itemsInBox = new ArrayList<Item>(itemsInBox);
         copy.freeCapacity = freeCapacity;
         copy.usedCapacity = usedCapacity;
         copy.id = id;

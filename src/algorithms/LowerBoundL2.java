@@ -12,7 +12,6 @@ import java.util.List;
  */
 public class LowerBoundL2 {
     private List<Item> items = new ArrayList<>();
-    private int lowerBound;
     boolean isAnyBiggerThanHalfCapacity = false;
 
     public LowerBoundL2(List<Item> items) {
@@ -50,16 +49,6 @@ public class LowerBoundL2 {
         double lAlpha = j1.size() + j2.size() + Math.max(0, (int)Math.ceil((makeSum(j3) - (j2.size()*Constants.MAX_CAPACITY_OF_BOX - makeSum(j2))) / Constants.MAX_CAPACITY_OF_BOX));
         int lAlphaRoundUp = (int)Math.ceil(lAlpha);
 
-        if(lAlphaRoundUp > maxCurrentLowerBound){
-            maxCurrentLowerBound = lAlphaRoundUp;
-        }
-
-        double lAplhaPrim = j1.size() + j2.size() + (int)Math.ceil(makeSum(items, Constants.MAX_CAPACITY_OF_BOX/2) - (j2.size()*Constants.MAX_CAPACITY_OF_BOX - makeSum(j2))) / Constants.MAX_CAPACITY_OF_BOX;
-        int lAplhaPrimRoundUp = (int)Math.ceil(lAplhaPrim);
-//        if(lAplhaPrimRoundUp <= maxCurrentLowerBound){  //lowebound found
-//            lowerBound = maxCurrentLowerBound;
-//            return -1; //info - stop iterating
-//        }
         return lAlphaRoundUp;
     }
 
@@ -96,15 +85,6 @@ public class LowerBoundL2 {
     private double makeSum(List<Item> itemsForSum){
         double sum = 0;
         for (Item item : itemsForSum){
-            sum += item.getItemSize();
-        }
-        return sum;
-    }
-
-    private double makeSum(List<Item> itemsForSum, double from){
-        double sum = 0;
-        for (Item item : itemsForSum){
-            if(item.getItemSize() <= from)
             sum += item.getItemSize();
         }
         return sum;
